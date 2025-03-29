@@ -17,6 +17,7 @@ import RequestsOverview from './pages/RequestsOverview';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
+import ProductDetails from './pages/ProductDetails';
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -51,6 +52,7 @@ function App() {
               <Route path="/requests" element={<RequestsOverview />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/product-details" element={<ProductDetails />} />
             </>
           )}
           <Route path="/*" element={<NotFound />}

@@ -3,6 +3,7 @@ import { Search, Star, MapPin, Calendar, PackageSearch, Sliders, Heart, Shapes }
 import { toast } from 'react-toastify';
 import axiosInstance from '../config/axios';
 import RentModal from '../components/RentModal';
+import { Link } from 'react-router-dom';
 
 const BrowseItems = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,6 +12,7 @@ const BrowseItems = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [wishlistProducts, setWishlistProducts] = useState(new Set());
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -53,15 +55,36 @@ const BrowseItems = () => {
         params,
         withCredentials: true
       });
+      const wishlist = await axiosInstance.get(`/product/get-wishlist`, {},
+        {
+          withCredentials: true
+        });
+      setWishlistProducts(new Set(wishlist.data.data));
       setItems(data.data);
-      console.log(data.data);
-
     } catch (error) {
       toast.error(error?.response?.data?.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleLike = async (productId) => {
+    try {
+      const res = await axiosInstance.patch(`/product/like/${productId}`, {}, { withCredentials: true });
+      if (res.data.added)
+        setWishlistProducts(prev => (new Set([...prev, productId])))
+      else {
+        setWishlistProducts(prev => {
+          const updatedSet = new Set(prev);
+          updatedSet.delete(productId);  // Remove the productId from the Set
+          return updatedSet;
+        });
+      }
+    }
+    catch (error) {
+      toast.error('Something went wrong!');
+    }
+  }
 
   const categories = [
     "all",
@@ -201,8 +224,8 @@ const BrowseItems = () => {
                     </div>
                   </div>
                   <div className="absolute bottom-0 right-2 flex space-x-2">
-                    <button className="p-2 bg-white dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 shadow-lg transition-colors duration-200">
-                      <Heart className="h-4 w-4" />
+                    <button onClick={() => handleLike(item._id)} className="p-2 bg-white dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 shadow-lg transition-colors duration-200">
+                      <Heart className={`h-4 w-4 ${wishlistProducts.has(item._id) ? 'fill-red-500 text-red-500' : ''}`} />
                     </button>
                   </div>
                 </div>
@@ -230,15 +253,24 @@ const BrowseItems = () => {
                       </span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      setSelectedItem(item);
-                      setIsModalOpen(true);
-                    }}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800"
-                  >
-                    Rent Now
-                  </button>
+                  <div className='grid grid-cols-2 gap-2'>
+                    <Link to={`/product-details`} state={{ productId: item._id }}>
+                      <button
+                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800"
+                      >
+                        View Details
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setSelectedItem(item);
+                        setIsModalOpen(true);
+                      }}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800"
+                    >
+                      Rent Now
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -247,14 +279,16 @@ const BrowseItems = () => {
           <NoResultsFound />
         )}
       </div>
-      {isModalOpen && selectedItem && (
-        <RentModal
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
-    </div>
+      {
+        isModalOpen && selectedItem && (
+          <RentModal
+            item={selectedItem}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )
+      }
+    </div >
   );
 };
 

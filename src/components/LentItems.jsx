@@ -117,13 +117,6 @@ const EmptyState = ({ type }) => (
         <p className="text-gray-600 dark:text-gray-400">
             You haven't lent any items yet.
         </p>
-        <Link
-            to="/browse"
-            className="mt-6 inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300"
-        >
-            Browse Items
-            <ArrowRight className="h-5 w-5 ml-2" />
-        </Link>
     </div>
 );
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Star, X, Upload, Camera, Trash2 } from 'lucide-react';
+import axiosInstance from '../config/axios';
 
 const ReviewModal = ({ isOpen, onClose, rental }) => {
     const [rating, setRating] = useState(0);
@@ -25,9 +26,18 @@ const ReviewModal = ({ isOpen, onClose, rental }) => {
         setImageURLs(newImageURLs);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (productId, rentId, e) => {
+        console.log(rental)
         e.preventDefault();
         // Handle review submission logic here
+        await axiosInstance.post(`review/add-product-review`, {
+            payload: {
+                productId,
+                rentId,
+                rating,
+                review
+            }
+        }, { withCredentials: true })
         console.log({ rating, review, images });
         onClose();
     };
@@ -58,7 +68,7 @@ const ReviewModal = ({ isOpen, onClose, rental }) => {
                                     Rate Your Experience
                                 </h3>
 
-                                <form onSubmit={handleSubmit} className="space-y-6">
+                                <form onSubmit={(e) => handleSubmit(rental.product._id, rental._id, e)} className="space-y-6">
                                     {/* Product Info */}
                                     <div className="flex items-center space-x-4">
                                         <img
@@ -90,8 +100,8 @@ const ReviewModal = ({ isOpen, onClose, rental }) => {
                                                 >
                                                     <Star
                                                         className={`h-8 w-8 ${star <= (hoveredRating || rating)
-                                                                ? 'fill-yellow-400 text-yellow-400'
-                                                                : 'text-gray-300 dark:text-gray-600'
+                                                            ? 'fill-yellow-400 text-yellow-400'
+                                                            : 'text-gray-300 dark:text-gray-600'
                                                             }`}
                                                     />
                                                 </button>
