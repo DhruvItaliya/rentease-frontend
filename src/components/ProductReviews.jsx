@@ -55,10 +55,17 @@ const ProductReviews = ({ reviews = [], productId, setReviews }) => {
     const handleHelpfulClick = async (reviewId) => {
         try {
             const res = await axiosInstance.patch(`review/helpful-vote/${reviewId}`, {}, { withCredentials: true })
+            console.log(res?.data?.data)
             const newReviews = reviews.map((review) => {
-                if (review._id === reviewId) return res.data.data;
+                if (review._id === reviewId) return {
+                    ...review,
+                    helpfulCount: ++review.helpfulCount,
+                    helpfulUsers: [...review.helpfulUsers, res?.data?.data],
+
+                };
                 return review;
             })
+            console.log(newReviews)
             setReviews(newReviews)
         }
         catch (err) {

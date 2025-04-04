@@ -112,7 +112,6 @@ const ListItem = () => {
     "Home & Garden",
     "Fashion",
     "Books",
-    "Music",
     "Art"
   ];
 
@@ -211,7 +210,7 @@ const ListItem = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Buy Date
+                      Purchase Date
                     </label>
                     <input
                       type="date"
@@ -220,6 +219,7 @@ const ListItem = () => {
                       required
                       className="mt-1 h-8 text-sm px-2 block outline-none w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-1 focus:ring-emerald-500 bg-gray-100 dark:bg-gray-700 dark:text-white sm:text-sm"
                       value={formData.buyDate}
+                      max={new Date().toISOString().split('T')[0]}
                       onChange={handleInputChange}
                     />
                   </div>
