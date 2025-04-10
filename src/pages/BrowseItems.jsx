@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import axiosInstance from '../config/axios';
 import RentModal from '../components/RentModal';
 import { Link } from 'react-router-dom';
+import { getStorage } from '../utils/storageUtils';
 
 const BrowseItems = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,6 +14,7 @@ const BrowseItems = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [wishlistProducts, setWishlistProducts] = useState(new Set());
+  const userData = getStorage('userData');
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -55,11 +57,13 @@ const BrowseItems = () => {
         params,
         withCredentials: true
       });
-      const wishlist = await axiosInstance.get(`/product/get-wishlist`, {},
-        {
-          withCredentials: true
-        });
-      setWishlistProducts(new Set(wishlist.data.data));
+      if (userData) {
+        const wishlist = await axiosInstance.get(`/product/get-wishlist`, {},
+          {
+            withCredentials: true
+          });
+        setWishlistProducts(new Set(wishlist.data.data));
+      }
       setItems(data.data);
     } catch (error) {
       toast.error(error?.response?.data?.message);
